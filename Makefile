@@ -83,7 +83,7 @@ GO_TAGS ?=
 
 RELEASE_EXES = orderer $(TOOLS_EXES)
 RELEASE_IMAGES = baseos ccenv orderer peer tools
-RELEASE_PLATFORMS = darwin-amd64 linux-amd64 linux-ppc64le linux-s390x windows-amd64
+RELEASE_PLATFORMS = darwin-amd64 linux-amd64 linux-arm64
 TOOLS_EXES = configtxgen configtxlator cryptogen discover idemixgen peer
 
 pkgmap.configtxgen    := $(PKGNAME)/cmd/configtxgen
@@ -206,7 +206,7 @@ $(BUILD_DIR)/bin/%: GO_LDFLAGS = $(METADATA_VAR:%=-X $(PKGNAME)/common/metadata.
 $(BUILD_DIR)/bin/%:
 	@echo "Building $@"
 	@mkdir -p $(@D)
-	GOBIN=$(abspath $(@D)) go install -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" $(pkgmap.$(@F))
+	GOBIN=$(abspath $(@D)) go install -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS) -s -w -linkmode external -extldflags '-static'" $(pkgmap.$(@F))
 	@touch $@
 
 .PHONY: docker
@@ -227,10 +227,7 @@ $(BUILD_DIR)/images/%/$(DUMMY):
 		--build-arg GO_VER=$(GO_VER) \
 		--build-arg ALPINE_VER=$(ALPINE_VER) \
 		$(BUILD_ARGS) \
-		-t $(DOCKER_NS)/fabric-$* ./$(BUILD_CONTEXT)
-	docker tag $(DOCKER_NS)/fabric-$* $(DOCKER_NS)/fabric-$*:$(BASE_VERSION)
-	docker tag $(DOCKER_NS)/fabric-$* $(DOCKER_NS)/fabric-$*:$(TWO_DIGIT_VERSION)
-	docker tag $(DOCKER_NS)/fabric-$* $(DOCKER_NS)/fabric-$*:$(DOCKER_TAG)
+		-t $(DOCKER_NS)/fabric-$*:$(DOCKER_TAG) ./$(BUILD_CONTEXT)
 	@touch $@
 
 # builds release packages for the host platform

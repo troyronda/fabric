@@ -9,6 +9,7 @@ FROM golang:${GO_VER}-alpine as golang
 RUN apk add --no-cache \
 	bash \
 	gcc \
+        binutils-gold \
 	git \
 	make \
 	musl-dev;

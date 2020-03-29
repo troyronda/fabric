@@ -21,13 +21,13 @@ ifneq ($(NO_PROXY),)
 DOCKER_BUILD_FLAGS+=--build-arg 'NO_PROXY=$(NO_PROXY)'
 endif
 
-DBUILD = docker build --force-rm $(DOCKER_BUILD_FLAGS)
+DBUILD = docker buildx build --force-rm $(DOCKER_BUILD_FLAGS) --platform=linux/arm64,linux/amd64 --push
 
-BASE_DOCKER_NS ?= hyperledger
-BASE_DOCKER_TAG=$(ARCH)-$(BASEIMAGE_RELEASE)
+BASE_DOCKER_NS ?= troyronda
+BASE_DOCKER_TAG=$(BASEIMAGE_RELEASE)
 
-DOCKER_NS ?= hyperledger
-DOCKER_TAG=$(ARCH)-$(PROJECT_VERSION)
+DOCKER_NS ?= troyronda
+DOCKER_TAG=$(BASE_VERSION)
 
 BASE_DOCKER_LABEL=org.hyperledger.fabric
 
