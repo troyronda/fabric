@@ -17,6 +17,7 @@ RUN apk add --no-cache tzdata libltdl
 FROM golang:${GO_VER}-alpine${ALPINE_VER} as golang
 RUN apk add --no-cache \
 	gcc \
+        binutils-gold \
 	musl-dev \
 	git \
 	bash \

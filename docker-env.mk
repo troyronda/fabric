@@ -42,13 +42,13 @@ DRUN = docker run -i --rm $(DOCKER_RUN_FLAGS) \
 	-v $(abspath .):/go/src/$(PKGNAME) \
 	-w /go/src/$(PKGNAME)
 
-DBUILD = docker build --force-rm $(DOCKER_BUILD_FLAGS)
+DBUILD = docker buildx build --force-rm $(DOCKER_BUILD_FLAGS) --platform=linux/arm64,linux/amd64 --push
 
-BASE_DOCKER_NS ?= hyperledger
-BASE_DOCKER_TAG=$(ARCH)-$(BASEIMAGE_RELEASE)
+BASE_DOCKER_NS ?= troyronda
+BASE_DOCKER_TAG=$(BASEIMAGE_RELEASE)
 
-DOCKER_NS ?= hyperledger
-DOCKER_TAG=$(ARCH)-$(PROJECT_VERSION)
+DOCKER_NS ?= troyronda
+DOCKER_TAG=$(BASE_VERSION)
 
 BASE_DOCKER_LABEL=org.hyperledger.fabric
 

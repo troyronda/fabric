@@ -8,6 +8,7 @@ FROM golang:${GO_VER}-alpine as golang
 
 RUN apk add --no-cache \
 	gcc \
+        binutils-gold \
 	musl-dev \
 	git \
 	bash \

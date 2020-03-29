@@ -91,7 +91,7 @@ PROTOS = $(shell git ls-files *.proto | grep -Ev 'vendor/|testdata/')
 # No sense rebuilding when non production code is changed
 PROJECT_FILES = $(shell git ls-files  | grep -Ev '^integration/|^vagrant/|.png$|^LICENSE|^vendor/')
 IMAGES = peer orderer baseos ccenv buildenv tools
-RELEASE_PLATFORMS = windows-amd64 darwin-amd64 linux-amd64 linux-s390x linux-ppc64le
+RELEASE_PLATFORMS = darwin-amd64 linux-amd64 linux-arm64
 RELEASE_PKGS = configtxgen cryptogen idemixgen discover token configtxlator peer orderer
 RELEASE_IMAGES = peer orderer tools ccenv baseos
 
@@ -235,7 +235,7 @@ $(BUILD_DIR)/bin:
 $(BUILD_DIR)/bin/%: check-go-version $(PROJECT_FILES)
 	@mkdir -p $(@D)
 	@echo "$@"
-	$(CGO_FLAGS) GOBIN=$(abspath $(@D)) go install -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" $(pkgmap.$(@F))
+	$(CGO_FLAGS) GOBIN=$(abspath $(@D)) go install -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS) -s -w -linkmode external -extldflags '-static'" $(pkgmap.$(@F))
 	@echo "Binary available as $@"
 	@touch $@
 
@@ -247,9 +247,7 @@ $(BUILD_DIR)/images/baseos/$(DUMMY):
 		--target base \
 		--build-arg GO_VER=${GO_VER} \
 		--build-arg ALPINE_VER=${ALPINE_VER} \
-		-t $(DOCKER_NS)/fabric-$(TARGET) images/peer
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(BASE_VERSION)
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
+		-t $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG) images/peer
 	@touch $@
 
 $(BUILD_DIR)/images/%/$(DUMMY):
@@ -260,9 +258,7 @@ $(BUILD_DIR)/images/%/$(DUMMY):
 		--build-arg GO_VER=${GO_VER} \
 		--build-arg ALPINE_VER=${ALPINE_VER} \
 		${BUILD_ARGS} \
-		-t $(DOCKER_NS)/fabric-$(TARGET) .
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(BASE_VERSION)
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
+		-t $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG) .
 	@touch $@
 
 # builds release packages for the host platform
